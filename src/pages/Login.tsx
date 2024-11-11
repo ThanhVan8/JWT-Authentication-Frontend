@@ -1,12 +1,12 @@
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import { TextField, Button, Box, InputAdornment } from '@mui/material';
+import { TextField, Button, Box, InputAdornment, CircularProgress } from '@mui/material';
 import { RiMailFill, RiLockFill } from '@remixicon/react';
 import { Link } from 'react-router-dom';
 import axios from '../config/axios-config';
 import { useNavigate } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { UserContext } from '../context/UserContext';
 
 type FormValues = {
@@ -19,12 +19,15 @@ interface ErrorResponse {
 }
 
 const Login = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const { control, handleSubmit, formState: { errors } } = useForm<FormValues>();
   const navigate = useNavigate();
 
   const { setIsLogged } = useContext(UserContext);
 
   const onSubmit: SubmitHandler<FormValues> = async data => {
+    setIsLoading(true);
     try {
       const res = await axios.post('/auth/login', data);
 
@@ -41,6 +44,8 @@ const Login = () => {
         "An unexpected error occurred";
 
       toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -107,6 +112,8 @@ const Login = () => {
         variant="contained" 
         color="primary"
         fullWidth
+        endIcon={isLoading && <CircularProgress color='inherit' size={'1rem'} />}
+        disabled={isLoading}
       >
         Login
       </Button>

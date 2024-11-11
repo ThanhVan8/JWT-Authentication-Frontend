@@ -1,10 +1,11 @@
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import { TextField, Button, Box, InputAdornment } from '@mui/material';
+import { TextField, Button, Box, InputAdornment, CircularProgress } from '@mui/material';
 import { RiMailFill, RiLockFill, RiUserFill } from '@remixicon/react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from '../config/axios-config';
 import { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
+import { useState } from 'react';
 
 type FormValues = {
   email: string;
@@ -17,11 +18,14 @@ interface ErrorResponse {
 }
 
 const Register = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const { control, handleSubmit, formState: { errors } } = useForm<FormValues>();
   const navigate = useNavigate();
 
   const onSubmit: SubmitHandler<FormValues> = async data => {
-    console.log(data);
+    setIsLoading(true);
+
     try {
       const res = await axios.post('/auth/register', data);
       toast.success(res.data.message);
@@ -35,6 +39,8 @@ const Register = () => {
         "An unexpected error occurred";
 
       toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -128,6 +134,8 @@ const Register = () => {
         variant="contained" 
         color="primary"
         fullWidth
+        endIcon={isLoading && <CircularProgress color='inherit' size={'1rem'} />}
+        disabled={isLoading}
       >
         Sign Up
       </Button>
